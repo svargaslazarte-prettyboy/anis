@@ -1,0 +1,41 @@
+<div class="app">
+  <aside class="lateral no-imprimir">
+    <div class="marca">
+      <app-mascota [tam]="58" />
+      <div>
+        <div class="nombre">ANIS</div>
+        <div class="sub">La Casa de la Huminta</div>
+      </div>
+    </div>
+    <nav>
+      @for (m of menu; track m.ruta) {
+        <a [routerLink]="m.ruta" routerLinkActive="activo"><span class="ico">{{ m.icono }}</span>{{ m.texto }}</a>
+      }
+    </nav>
+    <div class="pie">
+      <div class="usuario">
+        <div class="avatar">A</div>
+        <div>
+          <div class="u-nombre">Administradora</div>
+          <div class="u-email">{{ auth.sesion()?.user?.email }}</div>
+        </div>
+      </div>
+      <button class="btn claro chico" (click)="salir()">Cerrar sesión</button>
+    </div>
+  </aside>
+  <main>
+    <div class="franja no-imprimir"></div>
+    <header class="superior no-imprimir">
+      <span class="chip amarillo">Atención de martes a domingo</span>
+      <span class="hoy">{{ hoy | fecha }}</span>
+    </header>
+    <section class="contenido">
+      <router-outlet />
+    </section>
+  </main>
+</div>
+<div class="avisos">
+  @for (a of avisos.avisos(); track a.id) {
+    <div class="aviso" [class.error]="a.tipo === 'error'">{{ a.tipo === 'ok' ? '✅' : '⚠️' }} {{ a.texto }}</div>
+  }
+</div>

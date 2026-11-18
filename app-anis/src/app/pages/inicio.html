@@ -1,0 +1,63 @@
+<div class="encabezado">
+  <div>
+    <h1>¡Hola! Así va el día 🌽</h1>
+    <p>Resumen de ventas, caja e inventario de hoy</p>
+  </div>
+  <a class="btn amarillo" routerLink="/ventas">🧾 Nueva venta</a>
+</div>
+
+@if (t(); as t) {
+  <div class="grid g4">
+    <div class="tarjeta kpi"><div class="icono">💵</div><div><div class="valor">{{ t.ventas_hoy | bs }}</div><div class="etiqueta">Vendido hoy</div></div></div>
+    <div class="tarjeta kpi amarillo"><div class="icono">🧾</div><div><div class="valor">{{ t.nro_ventas_hoy }}</div><div class="etiqueta">Ventas · ticket promedio {{ t.ticket_promedio_hoy | bs }}</div></div></div>
+    <div class="tarjeta kpi"><div class="icono">📱</div><div><div class="valor">{{ t.qr_hoy | bs }}</div><div class="etiqueta">Por QR · efectivo {{ t.efectivo_hoy | bs }}</div></div></div>
+    <div class="tarjeta kpi amarillo"><div class="icono">🌽</div><div><div class="valor">{{ t.humintas_listas }}</div><div class="etiqueta">Humintas y pasteles listos</div></div></div>
+  </div>
+
+  <div class="grid g-pos mt">
+    <div class="tarjeta">
+      <div class="tarjeta-cab"><h2>Ventas de los últimos días</h2><span class="chip info">Mes: {{ t.ventas_mes | bs }}</span></div>
+      <app-grafico-barras [barras]="barras()" [destacarUltima]="true" />
+    </div>
+    <div class="tarjeta">
+      <div class="tarjeta-cab"><h2>Lo más vendido del mes</h2><a routerLink="/reportes" class="chip info">Ver reportes</a></div>
+      @for (p of top(); track p.producto) {
+        <div class="top">
+          <div class="top-fila"><b>{{ p.producto }}</b><span>{{ p.ingresos | bs }}</span></div>
+          <div class="barra amarilla"><span [style.width.%]="ancho(p)"></span></div>
+          <div class="muted peq">{{ p.unidades }} unidades · margen {{ p.margen_pct }} %</div>
+        </div>
+      } @empty { <div class="vacio">Aún no hay ventas este mes</div> }
+    </div>
+  </div>
+
+  <div class="grid g2 mt">
+    <div class="tarjeta">
+      <div class="tarjeta-cab"><h2>⚠️ Stock bajo</h2><span class="chip" [class.ok]="!t.insumos_stock_bajo" [class.agotado]="t.insumos_stock_bajo">{{ t.insumos_stock_bajo }} insumo(s)</span></div>
+      @for (s of alertasStock(); track s.id_insumo) {
+        <div class="alerta-fila">
+          <div><b>{{ s.nombre }}</b><div class="muted peq">Mínimo {{ s.stock_minimo | cant: s.unidad }}</div></div>
+          <div class="der"><span class="chip" [class.agotado]="s.estado === 'AGOTADO'" [class.bajo]="s.estado === 'BAJO'">{{ s.estado }}</span>
+            <div class="peq">Quedan {{ s.stock_actual | cant: s.unidad }}</div></div>
+        </div>
+      } @empty {
+        <div class="ok-box"><app-mascota [tam]="52" /> Todo el inventario está sobre el mínimo.</div>
+      }
+      <a routerLink="/entregas" class="btn claro chico mt">🚚 Registrar entrega</a>
+    </div>
+    <div class="tarjeta">
+      <div class="tarjeta-cab"><h2>⏰ Por vencer (3 días)</h2><span class="chip bajo">{{ porVencer().length }} lote(s)</span></div>
+      @for (l of porVencer(); track l.id_lote) {
+        <div class="alerta-fila">
+          <div><b>{{ l.insumo }}</b><div class="muted peq">Lote #{{ l.id_lote }} · {{ l.proveedor }}</div></div>
+          <div class="der"><span class="chip" [class.vencido]="l.estado_vencimiento === 'VENCIDO'" [class.por-vencer]="l.estado_vencimiento !== 'VENCIDO'">
+            {{ l.dias_para_vencer! < 0 ? 'Vencido' : l.dias_para_vencer === 0 ? 'Vence hoy' : 'Vence en ' + l.dias_para_vencer + ' d' }}</span>
+            <div class="peq">{{ l.cantidad_disponible | cant: l.unidad }} · {{ l.valor_en_riesgo | bs }}</div></div>
+        </div>
+      } @empty { <div class="vacio">No hay lotes por vencer 🎉</div> }
+      <div class="muted peq mt">Mermas del mes: <b>{{ t.mermas_mes | bs }}</b> · Caja de hoy: <b>{{ t.caja_cerrada ? 'cerrada' : 'abierta' }}</b></div>
+    </div>
+  </div>
+} @else {
+  <div class="vacio">Cargando…</div>
+}

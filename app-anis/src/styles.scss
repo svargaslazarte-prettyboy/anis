@@ -1,0 +1,193 @@
+/* ============================================================
+   Anis · La Casa de la Huminta — tema visual (azul + amarillo)
+   ============================================================ */
+:root {
+  --azul: #2b8fbd;
+  --azul-osc: #0d4a6e;
+  --azul-medio: #1b6fa8;
+  --azul-claro: #8fd0ea;
+  --azul-suave: #e6f4fb;
+  --amarillo: #f5c518;
+  --amarillo-osc: #d9a400;
+  --crema: #fff6d5;
+  --fondo: #f4f9fc;
+  --texto: #1d2b36;
+  --gris: #64748b;
+  --borde: #d7e6ef;
+  --ok: #1f9d55;
+  --alerta: #e08a00;
+  --error: #d64545;
+  --radio: 14px;
+  --sombra: 0 2px 10px rgba(13, 74, 110, 0.08);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: 'Nunito', 'Lato', system-ui, sans-serif;
+  color: var(--texto);
+  background: var(--fondo);
+  font-size: 15px;
+}
+h1, h2, h3, .titulo { font-family: 'Baloo 2', 'Nunito', sans-serif; color: var(--azul-osc); margin: 0; }
+h1 { font-size: 30px; line-height: 1.1; }
+h2 { font-size: 21px; }
+h3 { font-size: 17px; }
+a { color: var(--azul-medio); }
+
+/* Franja tipo menú (cuadros celestes) */
+.franja {
+  height: 12px;
+  background: repeating-linear-gradient(90deg, var(--azul-claro) 0 22px, transparent 22px 40px);
+}
+
+/* Encabezado de página */
+.encabezado { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.encabezado p { margin: 4px 0 0; color: var(--gris); }
+
+/* Tarjetas */
+.tarjeta {
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 18px 20px;
+}
+.tarjeta > h2, .tarjeta > h3 { margin-bottom: 12px; }
+.tarjeta-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+
+.grid { display: grid; gap: 18px; }
+.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.g-pos { grid-template-columns: minmax(0, 1.55fr) minmax(340px, 1fr); align-items: start; }
+@media (max-width: 1100px) { .g4 { grid-template-columns: repeat(2, 1fr); } .g3, .g-pos { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .g2, .g4 { grid-template-columns: 1fr; } }
+.mt { margin-top: 18px; }
+
+/* KPI */
+.kpi { display: flex; gap: 14px; align-items: center; }
+.kpi .icono {
+  width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center;
+  font-size: 24px; background: var(--azul-suave); flex: none;
+}
+.kpi.amarillo .icono { background: var(--crema); }
+.kpi .valor { font-family: 'Baloo 2', sans-serif; font-size: 27px; font-weight: 700; color: var(--azul-osc); line-height: 1; }
+.kpi .etiqueta { color: var(--gris); font-size: 13px; margin-top: 4px; }
+
+/* Botones */
+.btn {
+  border: 0; border-radius: 11px; padding: 10px 16px; font: inherit; font-weight: 800; cursor: pointer;
+  background: var(--azul-medio); color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: filter .15s;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.amarillo { background: var(--amarillo); color: #3b2f00; }
+.btn.claro { background: var(--azul-suave); color: var(--azul-osc); }
+.btn.peligro { background: #fde8e8; color: var(--error); }
+.btn.chico { padding: 6px 10px; font-size: 13px; border-radius: 9px; }
+.btn.grande { padding: 14px 20px; font-size: 17px; width: 100%; justify-content: center; }
+
+/* Formularios */
+label.campo { display: grid; gap: 5px; font-size: 13px; font-weight: 700; color: var(--azul-osc); }
+input, select, textarea {
+  font: inherit; color: var(--texto); border: 1.5px solid var(--borde); border-radius: 10px; padding: 9px 11px;
+  background: #fff; width: 100%;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--azul-claro); border-color: var(--azul); }
+.fila-form { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: 12px; }
+
+/* Selector segmentado */
+.segmento { display: flex; background: var(--azul-suave); border-radius: 11px; padding: 4px; gap: 4px; }
+.segmento button {
+  flex: 1; border: 0; background: transparent; padding: 8px 10px; border-radius: 8px; font: inherit; font-weight: 800;
+  color: var(--azul-osc); cursor: pointer;
+}
+.segmento button.activo { background: #fff; box-shadow: var(--sombra); color: var(--azul-medio); }
+
+/* Tablas */
+.tabla-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--gris);
+  border-bottom: 2px solid var(--borde); padding: 8px 10px; white-space: nowrap;
+}
+td { padding: 9px 10px; border-bottom: 1px solid #edf3f7; vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.anulada td { color: #9aa7b4; text-decoration: line-through; }
+
+/* Chips de estado */
+.chip { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.chip.ok { background: #e3f6ec; color: var(--ok); }
+.chip.bajo, .chip.por-vencer { background: #fff1d6; color: #9a5d00; }
+.chip.agotado, .chip.vencido { background: #fde8e8; color: var(--error); }
+.chip.info { background: var(--azul-suave); color: var(--azul-osc); }
+.chip.amarillo { background: var(--crema); color: #7a5b00; }
+
+/* Barra de progreso */
+.barra { height: 8px; background: #edf3f7; border-radius: 99px; overflow: hidden; }
+.barra > span { display: block; height: 100%; background: var(--azul); border-radius: 99px; }
+.barra.amarilla > span { background: var(--amarillo); }
+
+.vacio { text-align: center; color: var(--gris); padding: 18px; }
+.muted { color: var(--gris); }
+.error-msg { background: #fde8e8; color: var(--error); padding: 10px 12px; border-radius: 10px; font-weight: 700; }
+.pestanas { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.pestanas button {
+  border: 1.5px solid var(--borde); background: #fff; border-radius: 999px; padding: 8px 16px; font: inherit; font-weight: 800;
+  color: var(--azul-osc); cursor: pointer;
+}
+.pestanas button.activo { background: var(--azul-osc); color: #fff; border-color: var(--azul-osc); }
+.total-grande { font-family: 'Baloo 2', sans-serif; font-size: 34px; font-weight: 800; color: var(--azul-osc); }
+.separador { border: 0; border-top: 1.5px dashed var(--borde); margin: 14px 0; }
+
+@media print {
+  .no-imprimir { display: none !important; }
+  body { background: #fff; }
+  .tarjeta { box-shadow: none; break-inside: avoid; }
+}
+
+/* Tablero */
+.top { margin-bottom: 12px; }
+.top-fila { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.peq { font-size: 12.5px; }
+.alerta-fila { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #edf3f7; }
+.alerta-fila .der { text-align: right; display: grid; gap: 3px; justify-items: end; }
+.ok-box { display: flex; align-items: center; gap: 12px; font-weight: 700; color: var(--ok); }
+
+/* Punto de venta */
+.cat { margin: 4px 0 10px; }
+.productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.producto {
+  position: relative; text-align: left; border: 1.5px solid var(--borde); background: #fff; border-radius: 14px; padding: 14px;
+  cursor: pointer; display: grid; gap: 4px; font: inherit; box-shadow: var(--sombra); transition: transform .1s, border-color .1s;
+}
+.producto:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--amarillo); }
+.producto.agotado { opacity: .5; cursor: not-allowed; }
+.p-nombre { font-weight: 800; color: var(--azul-osc); line-height: 1.2; min-height: 36px; }
+.p-precio { font-family: 'Baloo 2', sans-serif; font-size: 22px; font-weight: 800; color: var(--azul-medio); }
+.p-stock { font-size: 12px; font-weight: 700; color: var(--gris); }
+.en-carrito {
+  position: absolute; top: -8px; right: -8px; background: var(--amarillo); color: #3b2f00; width: 28px; height: 28px;
+  border-radius: 50%; display: grid; place-items: center; font-weight: 900; box-shadow: var(--sombra);
+}
+.pedido { position: sticky; top: 16px; display: grid; gap: 10px; }
+.mt-s { margin-top: 4px; }
+.mesas { display: flex; gap: 6px; flex-wrap: wrap; }
+.mesas button {
+  width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--borde); background: #fff; font: inherit; font-weight: 800;
+  color: var(--azul-osc); cursor: pointer;
+}
+.mesas button.activo { background: var(--azul-medio); color: #fff; border-color: var(--azul-medio); }
+.lineas { display: grid; gap: 8px; max-height: 260px; overflow: auto; }
+.linea { display: grid; grid-template-columns: 1fr auto 86px; gap: 8px; align-items: center; }
+.l-nombre { font-weight: 700; }
+.l-sub { text-align: right; font-weight: 800; }
+.contador { display: flex; align-items: center; gap: 8px; }
+.contador button {
+  width: 28px; height: 28px; border-radius: 8px; border: 0; background: var(--azul-suave); color: var(--azul-osc); font-weight: 900;
+  font-size: 16px; cursor: pointer;
+}
+.total-fila { display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--gris); }
+.nuevo-cliente { background: var(--fondo); padding: 10px; border-radius: 10px; }

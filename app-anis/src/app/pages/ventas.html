@@ -1,0 +1,124 @@
+<div class="encabezado">
+  <div>
+    <h1>Punto de venta</h1>
+    <p>Toque un producto para agregarlo al pedido</p>
+  </div>
+  <span class="chip info">Hoy: {{ ventasHoy().length }} ventas · {{ totalDia() | bs }}</span>
+</div>
+
+<div class="grid g-pos">
+  <div>
+    @for (c of categorias(); track c.nombre) {
+      <h3 class="cat">{{ c.nombre }}</h3>
+      <div class="productos">
+        @for (p of c.items; track p.id_producto) {
+          <button class="producto" [class.agotado]="p.unidades_disponibles <= 0" [disabled]="p.unidades_disponibles <= 0" (click)="agregar(p)">
+            @if (enCarrito(p)) { <span class="en-carrito">{{ enCarrito(p) }}</span> }
+            <span class="p-nombre">{{ p.nombre }}</span>
+            <span class="p-precio">{{ p.precio_venta | bs }}</span>
+            <span class="p-stock">
+              @if (p.unidades_disponibles <= 0) { Agotado }
+              @else if (p.tipo === 'ELABORADO') { {{ p.unidades_disponibles }} listas }
+              @else { Disponible }
+            </span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="tarjeta pedido">
+    <h2>Pedido</h2>
+    <div class="segmento mt-s">
+      <button [class.activo]="tipoPedido() === 'MESA'" (click)="tipoPedido.set('MESA')">🍽️ En mesa</button>
+      <button [class.activo]="tipoPedido() === 'PARA_LLEVAR'" (click)="tipoPedido.set('PARA_LLEVAR')">🛍️ Para llevar</button>
+    </div>
+    @if (tipoPedido() === 'MESA') {
+      <div class="mesas">
+        @for (m of mesas; track m) { <button [class.activo]="mesa === m" (click)="mesa = m">{{ m }}</button> }
+      </div>
+    }
+
+    <div class="lineas">
+      @for (l of carrito(); track l.producto.id_producto) {
+        <div class="linea">
+          <div class="l-nombre">{{ l.producto.nombre }}<div class="muted peq">{{ l.producto.precio_venta | bs }} c/u</div></div>
+          <div class="contador">
+            <button (click)="cambiar(l, -1)">−</button><b>{{ l.cantidad }}</b><button (click)="cambiar(l, 1)">+</button>
+          </div>
+          <div class="l-sub">{{ l.cantidad * l.producto.precio_venta | bs }}</div>
+        </div>
+      } @empty { <div class="vacio">El pedido está vacío</div> }
+    </div>
+
+    <hr class="separador">
+    <div class="fila-form">
+      <label class="campo">Cliente
+        <select [(ngModel)]="idCliente">
+          @for (c of clientes(); track c.id_cliente) { <option [ngValue]="c.id_cliente">{{ c.nombre }}{{ c.ci_nit ? ' · ' + c.ci_nit : '' }}</option> }
+        </select>
+      </label>
+      <label class="campo">Comprobante
+        <select [(ngModel)]="comprobante">
+          <option value="NOTA_VENTA">Nota de venta</option>
+          <option value="FACTURA">Factura</option>
+        </select>
+      </label>
+    </div>
+    @if (nuevoCliente) {
+      <div class="nuevo-cliente">
+        <div class="fila-form">
+          <input placeholder="Nombre" [(ngModel)]="nuevoCliente.nombre">
+          <input placeholder="CI / NIT" [(ngModel)]="nuevoCliente.ci_nit">
+          <input placeholder="Teléfono" [(ngModel)]="nuevoCliente.telefono">
+        </div>
+        <button class="btn chico" (click)="guardarCliente()">Guardar cliente</button>
+        <button class="btn claro chico" (click)="nuevoCliente = null">Cancelar</button>
+      </div>
+    } @else {
+      <button class="btn claro chico" (click)="nuevoCliente = { nombre: '', ci_nit: '', telefono: '' }">＋ Nuevo cliente</button>
+    }
+
+    <div class="segmento mt">
+      @for (m of metodos(); track m.id_metodo_pago) {
+        <button [class.activo]="metodo() === m.id_metodo_pago" (click)="metodo.set(m.id_metodo_pago)">{{ m.nombre === 'QR' ? '📱 QR' : '💵 Efectivo' }}</button>
+      }
+    </div>
+    <div class="fila-form mt">
+      <label class="campo">Descuento (Bs)<input type="number" min="0" step="0.5" [(ngModel)]="descuento"></label>
+      @if (nombreMetodo() === 'EFECTIVO') {
+        <label class="campo">Recibido (Bs)<input type="number" min="0" [(ngModel)]="recibido"></label>
+      }
+    </div>
+    @if (cambio !== null && nombreMetodo() === 'EFECTIVO') {
+      <div class="muted">Cambio: <b [style.color]="cambio < 0 ? 'var(--error)' : 'var(--ok)'">{{ cambio | bs }}</b></div>
+    }
+    <div class="total-fila"><span>Total</span><span class="total-grande">{{ total | bs }}</span></div>
+    <button class="btn amarillo grande" [disabled]="!carrito().length || guardando()" (click)="cobrar()">
+      {{ guardando() ? 'Registrando…' : 'Cobrar y registrar venta' }}
+    </button>
+  </div>
+</div>
+
+<div class="tarjeta mt">
+  <div class="tarjeta-cab"><h2>Ventas de hoy</h2><span class="muted">Las anuladas devuelven el inventario automáticamente</span></div>
+  <div class="tabla-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Hora</th><th>Detalle</th><th>Pedido</th><th>Cliente</th><th>Pago</th><th class="num">Total</th><th></th></tr></thead>
+      <tbody>
+        @for (v of ventasHoy(); track v.id_venta) {
+          <tr [class.anulada]="v.estado === 'ANULADA'">
+            <td>{{ v.id_venta }}</td>
+            <td>{{ v.fecha_hora | fecha: 'hora' }}</td>
+            <td>{{ v.detalle }}</td>
+            <td>{{ v.tipo_pedido === 'MESA' ? 'Mesa ' + v.nro_mesa : 'Para llevar' }}</td>
+            <td>{{ v.cliente }}{{ v.tipo_comprobante === 'FACTURA' ? ' (factura)' : '' }}</td>
+            <td><span class="chip" [class.info]="v.metodo_pago === 'QR'" [class.amarillo]="v.metodo_pago === 'EFECTIVO'">{{ v.metodo_pago }}</span></td>
+            <td class="num"><b>{{ v.total | bs }}</b></td>
+            <td>@if (v.estado === 'PAGADA') { <button class="btn peligro chico" (click)="anular(v)">Anular</button> } @else { <span class="chip vencido">Anulada</span> }</td>
+          </tr>
+        } @empty { <tr><td colspan="8" class="vacio">Todavía no hay ventas hoy</td></tr> }
+      </tbody>
+    </table>
+  </div>
+</div>

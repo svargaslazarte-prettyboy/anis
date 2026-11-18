@@ -1,0 +1,77 @@
+<div class="encabezado">
+  <div><h1>Inventario</h1><p>Stock calculado por lotes; las salidas se descuentan primero de lo que vence antes (FEFO)</p></div>
+  <button class="btn claro" (click)="darDeBajaVencidos()">♻️ Dar de baja vencidos</button>
+</div>
+<div class="grid g3">
+  <div class="tarjeta kpi"><div class="icono">📦</div><div><div class="valor">{{ stock().length }}</div><div class="etiqueta">Insumos controlados</div></div></div>
+  <div class="tarjeta kpi amarillo"><div class="icono">⚠️</div><div><div class="valor">{{ alertas() }}</div><div class="etiqueta">Con stock bajo o agotado</div></div></div>
+  <div class="tarjeta kpi"><div class="icono">💰</div><div><div class="valor">{{ valorTotal() | bs }}</div><div class="etiqueta">Valor del inventario</div></div></div>
+</div>
+<div class="pestanas mt">
+  <button [class.activo]="pestana() === 'stock'" (click)="pestana.set('stock')">Stock actual</button>
+  <button [class.activo]="pestana() === 'lotes'" (click)="pestana.set('lotes')">Lotes y vencimientos</button>
+  <button [class.activo]="pestana() === 'kardex'" (click)="pestana.set('kardex')">Kárdex</button>
+</div>
+
+@switch (pestana()) {
+  @case ('stock') {
+    <div class="tarjeta tabla-wrap"><table>
+      <thead><tr><th>Insumo</th><th>Categoría</th><th class="num">Stock</th><th class="num">Mínimo</th><th style="width:160px">Nivel</th><th>Estado</th><th>Próx. vencimiento</th><th class="num">Valor</th></tr></thead>
+      <tbody>
+        @for (s of stock(); track s.id_insumo) {
+          <tr>
+            <td><b>{{ s.nombre }}</b><div class="muted peq">{{ s.codigo }}</div></td>
+            <td>{{ s.categoria }}</td>
+            <td class="num"><b>{{ s.stock_actual | cant: s.unidad }}</b></td>
+            <td class="num">{{ s.stock_minimo | cant: s.unidad }}</td>
+            <td><div class="barra" [class.amarilla]="s.estado !== 'OK'"><span [style.width.%]="porcentaje(s)"></span></div></td>
+            <td><span class="chip" [class.ok]="s.estado === 'OK'" [class.bajo]="s.estado === 'BAJO'" [class.agotado]="s.estado === 'AGOTADO'">{{ s.estado }}</span></td>
+            <td>{{ s.proximo_vencimiento ? (s.proximo_vencimiento | fecha) : 'No perecedero' }}</td>
+            <td class="num">{{ s.valor_inventario | bs }}</td>
+          </tr>
+        }
+      </tbody>
+    </table></div>
+  }
+  @case ('lotes') {
+    <div class="tarjeta tabla-wrap"><table>
+      <thead><tr><th>Lote</th><th>Insumo</th><th>Proveedor</th><th>Recibido</th><th>Vence</th><th class="num">Disponible</th><th class="num">En riesgo</th><th>Situación</th></tr></thead>
+      <tbody>
+        @for (l of lotes(); track l.id_lote) {
+          <tr>
+            <td>#{{ l.id_lote }}</td><td><b>{{ l.insumo }}</b></td><td>{{ l.proveedor }}</td>
+            <td>{{ l.fecha_recepcion | fecha }}</td><td>{{ l.fecha_vencimiento ? (l.fecha_vencimiento | fecha) : '—' }}</td>
+            <td class="num">{{ l.cantidad_disponible | cant: l.unidad }} <span class="muted peq">de {{ l.cantidad_recibida | cant }}</span></td>
+            <td class="num">{{ l.valor_en_riesgo | bs }}</td>
+            <td><span class="chip" [class.vencido]="l.estado_vencimiento === 'VENCIDO'" [class.por-vencer]="l.estado_vencimiento === 'POR VENCER'"
+              [class.ok]="l.estado_vencimiento === 'VIGENTE'" [class.info]="l.estado_vencimiento === 'NO PERECEDERO'">{{ l.estado_vencimiento }}
+              @if (l.dias_para_vencer !== null && l.dias_para_vencer >= 0) { · {{ l.dias_para_vencer }} d }</span></td>
+          </tr>
+        }
+      </tbody>
+    </table></div>
+  }
+  @case ('kardex') {
+    <div class="tarjeta">
+      <div class="fila-form no-imprimir" style="max-width:420px">
+        <label class="campo">Filtrar por insumo
+          <select [(ngModel)]="insumoKardex" (ngModelChange)="cargarKardex()">
+            <option value="">Todos (últimos 80 movimientos)</option>
+            @for (s of stock(); track s.id_insumo) { <option [value]="s.codigo">{{ s.nombre }}</option> }
+          </select>
+        </label>
+      </div>
+      <div class="tabla-wrap"><table>
+        <thead><tr><th>Fecha y hora</th><th>Insumo</th><th>Lote</th><th>Movimiento</th><th class="num">Cantidad</th><th class="num">Valor</th><th>Referencia</th></tr></thead>
+        <tbody>
+          @for (k of kardex(); track k.id_movimiento) {
+            <tr><td>{{ k.fecha_hora | fecha: 'completa' }}</td><td>{{ k.insumo }}</td><td>#{{ k.id_lote }}</td>
+              <td><span class="chip" [class.ok]="k.cantidad > 0" [class.bajo]="k.tipo === 'SALIDA_MERMA'" [class.info]="k.cantidad < 0 && k.tipo !== 'SALIDA_MERMA'">{{ k.tipo }}</span></td>
+              <td class="num" [style.color]="k.cantidad > 0 ? 'var(--ok)' : 'inherit'"><b>{{ k.cantidad > 0 ? '+' : '' }}{{ k.cantidad | cant: k.unidad }}</b></td>
+              <td class="num">{{ k.valor | bs }}</td><td>{{ k.referencia }}</td></tr>
+          }
+        </tbody>
+      </table></div>
+    </div>
+  }
+}

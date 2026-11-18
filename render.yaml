@@ -1,0 +1,15 @@
+# Render Blueprint: sitio estático con la app Angular (la base de datos está en Supabase)
+services:
+  - type: web
+    name: anis-casa-de-la-huminta
+    runtime: static
+    rootDir: app-anis
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist/app-anis/browser
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
